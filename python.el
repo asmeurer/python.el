@@ -828,44 +828,17 @@ START is the buffer position where the sexp starts."
                             (not (python-syntax-context 'paren))))
                  (goto-char context-start)
                  (current-indentation))))
-            ;; If open paren is contained on a line by itself add another
-            ;; indentation level, else look for the first word after the
-            ;; opening paren and use it's column position as indentation
-            ;; level.
-            ((let* ((content-starts-in-newline)
-                    (indent
-                     (save-excursion
-                       (if (setq content-starts-in-newline
-                                 (progn
-                                   (goto-char context-start)
-                                   (forward-char)
-                                   (save-restriction
-                                     (narrow-to-region
-                                      (line-beginning-position)
-                                      (line-end-position))
-                                     (python-util-forward-comment))
-                                   (looking-at "$")))
-                           (+ (current-indentation) python-indent-offset)
-                         (current-column)))))
-               ;; Adjustments
-               (cond
-                ;; If current line closes a nested open paren de-indent one
-                ;; level.
-                ((progn
-                   (back-to-indentation)
-                   (looking-at (regexp-opt '(")" "]" "}"))))
-                 (- indent python-indent-offset))
-                ;; If the line of the opening paren that wraps the current
-                ;; line starts a block add another level of indentation to
-                ;; follow new pep8 recommendation. See: http://ur1.ca/5rojx
-                ((save-excursion
-                   (when (and content-starts-in-newline
-                              (progn
-                                (goto-char context-start)
-                                (back-to-indentation)
-                                (looking-at (python-rx block-start))))
-                     (+ indent python-indent-offset))))
-                (t indent)))))))))))
+            ;; Indent additional lines one in
+            ;; TODO: This recursively indents lines with nested parentheses,
+            ;; like
+            ;; (a, b, c, d,
+            ;;     (e, f, g,
+            ;;         h, i, j),
+            ;;     k)
+            (t (progn
+                 (goto-char context-start)
+                 (+ (current-indentation) python-indent-offset)))
+            )))))))
 
 (defun python-indent-calculate-levels ()
   "Calculate `python-indent-levels' and reset `python-indent-current-level'."
