@@ -777,31 +777,6 @@ START is the buffer position where the sexp starts."
           ;; After backslash we have several possibilities.
           (`after-backslash
            (cond
-            ;; Check if current line is a dot continuation.  For this
-            ;; the current line must start with a dot and previous
-            ;; line must contain a dot too.
-            ((save-excursion
-               (back-to-indentation)
-               (when (looking-at "\\.")
-                 ;; If after moving one line back point is inside a paren it
-                 ;; needs to move back until it's not anymore
-                 (while (prog2
-                            (forward-line -1)
-                            (and (not (bobp))
-                                 (python-syntax-context 'paren))))
-                 (goto-char (line-end-position))
-                 (while (and (re-search-backward
-                              "\\." (line-beginning-position) t)
-                             (python-syntax-context-type)))
-                 (if (and (looking-at "\\.")
-                          (not (python-syntax-context-type)))
-                     ;; The indentation is the same column of the
-                     ;; first matching dot that's not inside a
-                     ;; comment, a string or a paren
-                     (current-column)
-                   ;; No dot found on previous line, just add another
-                   ;; indentation level.
-                   (+ (current-indentation) python-indent-offset)))))
             ;; Check if prev line is a block continuation
             ((let ((block-continuation-start
                     (python-info-block-continuation-line-p)))
