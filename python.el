@@ -430,7 +430,7 @@ The type returned can be `comment', `string' or `paren'."
           ;; Python versions.
           "nonlocal"
           ;; Extra:
-          "self")
+          "self" "cls" "mcl")
          symbol-end)
     ;; functions
     (,(rx symbol-start "def" (1+ space) (group (1+ (or word ?_))))
